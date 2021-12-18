@@ -5,7 +5,11 @@ kdigo_creat <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/kdigo_c
 icustay_detail <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/icustay_detail.csv")
 pivoted_lab <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/pivoted_lab.csv")
 pivoted_bg <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/pivoted_bg.csv")
-elixhauser_ahrq_v37 <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/elixhauser_ahrq_v37.csv")
+esrd_patients <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/esrd_patients.csv")
+
+#elixhauser_ahrq_v37 <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/elixhauser_ahrq_v37.csv")
+#elixhauser_ahrq_v37_no_drg <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/elixhauser_ahrq_v37_no_drg.csv")
+#elixhauser_quan <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/elixhauser_quan.csv")
 
 #save.image("SQLtables.RData")
 
@@ -117,7 +121,6 @@ kdigo3p7 <- kdigo3p6 %>%
 hist(as.numeric(kdigo3p7$kdigo3_to_rrt_time)/24, breaks = 0:63)
 sum(kdigo3p7$kdigo3_to_rrt_time/24<3, na.rm=T)
 
-
 ## explore de patients who received cavh
 cavh <- kdigo3p7 %>% filter(dialysis_type=="CAVH") %>% select(icustay_id)
 
@@ -139,14 +142,27 @@ rtt_type2 <- rtt_type %>% select(icustay_id, first_known_type)
 kdigo3p7 <- merge(x=kdigo3p7, y=rtt_type2, by="icustay_id", all.x = TRUE)
 kdigo3p7$likely_dialysis_type <- ifelse(!is.na(kdigo3p7$dialysis_type) & kdigo3p7$dialysis_type!="", kdigo3p7$dialysis_type, kdigo3p7$first_known_type)
 
+#
+kdigo3p8 <- kdigo3p7[!kdigo3p7$subject_id %in% esrd_patients$SUBJECT_ID,]
+
+
 # Exclude the patients with known chronic kidney disease
 temp <- merge(x=kdigo3p7, y=elixhauser_ahrq_v37, by="hadm_id", all.x = TRUE)
 kdigo3p8 <- temp %>% filter(renal_failure==0)
 
+
+
 ## explore de patients who received Peritoneal Dialysis
-peritoneal <- kdigo3p8 %>% filter(likely_dialysis_type=="Peritoneal") %>% select(icustay_id)
+peritoneal <- kdigo3p8 %>% filter(likely_dialysis_type=="Peritoneal") %>% select(icustay_id, hadm_id, subject_id.x)
 
 # OK so these seem to be real patients with CKD...
 pivoted_rrt %>% filter(icustay_id %in% peritoneal$icustay_id[11]) %>% arrange(icustay_id, charttime.rrt)
 
 # Get their reports from the noteevent table to understand
+peritoneal_notes <- read.csv("~/Desktop/TEAM METHODS/phd/Mimic/extracted_data/peritoneal_notes.csv")
+peritoneal_reports <- peritoneal_notes[peritoneal_notes$CATEGORY=="Discharge summary",]
+peritoneal_reports$SUBJECT_ID[grepl("ESRD|End-stage renal disease", peritoneal_reports$TEXT, fixed = FALSE)]
+
+grepl("ESRD|End-stage renal disease|end-stage renal disease|Peritoneal Dialysis|Peritoneal dialysis|peritoneal dialysis", peritoneal_reports$TEXT, fixed = FALSE)
+
+
