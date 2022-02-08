@@ -1,7 +1,11 @@
 dat <- read.csv("/Users/francois/Desktop/github repos/MIMIC-DTR/mimic_si.csv")
-dat <- as.data.frame(lapply(dat, defactorize))
 
 
+
+boot_dtr <- function(d, i=1:nrow(d)) {
+        dat<-d[i,]
+        dat <- as.data.frame(lapply(dat, defactorize))
+        
 ################################################
 #### Backward induction procedure stage k=3 #### 
 ################################################
@@ -40,6 +44,7 @@ pr_mod_k3 <- lm(hfd ~ admission_age + weight + gender + SOFA_24hours + bun_k3 +
 
 # Store all coefficients for bootstrapping
 all_coef_k3 <- coef(pr_mod_k3)
+names(all_coef_k3) <- paste0("mod_k3_", names(all_coef_k3))
 
 # Store the effect of tailoring variables 
 psi_k3 <- coef(pr_mod_k3)[grepl("a3", names(coef(pr_mod_k3)) )]
@@ -108,6 +113,7 @@ pr_mod_k2 <- lm(hfd_tilde_2 ~ admission_age + SOFA_24hours + weight + gender +
 
 # Store all coefficients for bootstrapping
 all_coef_k2 <- coef(pr_mod_k2)
+names(all_coef_k2) <- paste0("mod_k2_", names(all_coef_k2))
 
 # Store the effect of tailoring variables 
 psi_k2 <- coef(pr_mod_k2)[grepl("a2", names(coef(pr_mod_k2)) )]
@@ -175,7 +181,46 @@ pr_mod_k1 <- lm(hfd_tilde_1 ~ admission_age + SOFA_24hours + weight + #gender +
 
 # Store all coefficients for bootstrapping
 all_coef_k1 <- coef(pr_mod_k1)
+names(all_coef_k1) <- paste0("mod_k1_", names(all_coef_k1))
 
 # Store the effect of tailoring variables 
 psi_k1 <- coef(pr_mod_k1)[grepl("a1", names(coef(pr_mod_k1)) )]
+
+
+##### FINAL RETURN FROM THE FUNCTION #####
+##### returns concatenated coefficients from stage 1,2,3 models #####
+
+return(c(all_coef_k1, all_coef_k2, all_coef_k3))
+}
+
+
+###
+n_boot <- 10
+res <- list()
+all_coefs <- list()
+all_coefs_vars <- list()
+
+for(i in 1:exp_dat$m)
+{        
+imp_dat <- complete(exp_dat, i)
+boot_res <- boot(imp_dat, boot_dtr, R=n_boot)
+res[[i]] <- boot_res
+all_coefs[[i]] <- apply(res[[i]]$t, 2, var)
+all_coefs_vars[[i]] <- apply(res[[i]]$t, 2, var)
+}
+
+rubin_est <- c() ; rubin_ests <- c()
+rubin_var <- c() ; rubin_vars <- c()
+
+for(i in 1:length(all_coefs[[1]]))
+{
+rubin_est <- mean(sapply(all_coefs, function(x) x[i]) )
+rubin_ests <- c(rubin_ests, rubin_est)
+
+rubin_var <- rubinr(sapply(all_coefs, function(x) x[i]), sapply(all_coefs_vars, function(x) x[i]))
+rubin_vars <- c(rubin_vars, rubin_var)
+}
+
+rubin_ests
+rubin_vars
 

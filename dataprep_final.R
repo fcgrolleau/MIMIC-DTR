@@ -450,8 +450,8 @@ do_not_impute_var <- c("dod", "subject_id", "hadm_id", "icustay_id", "charttime.
 
 meth[do_not_impute_var] <- "" # do not impute the do_not_impute_var
 
-exp_dat <- mice(exp_dat, m=5, seed = 1, predictorMatrix = predM, method = meth)
-exp_dat_simp <- complete(exp_dat_mice, 1)
+exp_dat <- mice(exp_dat, m=100, seed = 1, predictorMatrix = predM, method = meth)
+exp_dat_simp <- complete(exp_dat, 1)
 save(exp_dat, file="imputed_mimic_dtr.RData")
 #write.csv(x = exp_dat_simp, "mimic_si.csv", row.names=FALSE)
 
