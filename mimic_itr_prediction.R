@@ -1,4 +1,5 @@
-mimic_si <- read.csv("~/Desktop/github repos/Emulated-ITR/Python/data/mimic_si.csv")
+load("imputed_mimic_dtr.RData")
+mimic_si <- complete(ext_dat,1)
 
 library(survival)
 library(splines)
