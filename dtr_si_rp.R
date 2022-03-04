@@ -38,6 +38,10 @@ ps_mod_k3 <- glm(a3 ~ bun_k3 + ph_k3 +I((pot_k3/10)^-2)+I((pot_k3/10)^-2*log((po
 # Create weights as described by Wallace and Moodie, Biometrics 2015
 # to achieve double robustness
 
+dat_k3$lpred <- predict(ps_mod_k3)
+
+plot(calibrate(lrm(a3 ~ lpred, data=dat_k3, x=T, y=T)))
+
 w_k3 <- with(dat_k3, abs(a3 - predict(ps_mod_k3, type = "response")) )
 
 # Weighted Least Square regression step
@@ -50,7 +54,7 @@ w_k3 <- with(dat_k3, abs(a3 - predict(ps_mod_k3, type = "response")) )
 
 pr_mod_k3 <- lm(hfd ~ admission_age + weight + gender + SOFA_24hours + bun_k3 +
                         a3 * uo_k3 + a3 * I(bun_k3/bun_k1),
-                weights = w_k3, data = dat_k3) ## keep this model
+                weights = w_k3, data = dat_k3)## keep this model
 
 # Model fit and diagnostics are accessible via
 # summary(pr_mod_k3) and plot(pr_mod_k3) respectively
