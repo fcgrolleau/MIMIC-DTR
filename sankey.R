@@ -47,41 +47,41 @@ n_r1 <- temp2%>%
         dplyr::group_by(r1)%>%
         dplyr::tally()%>%
         dplyr::mutate(perc = n/sum(n))%>%
-        dplyr::mutate(New_r1 = paste0(r1, ' ', ' (', round(perc* 100,1) , '%)'))%>%
+        dplyr::mutate(New_r1 = paste0(r1, ' (', n , ', ', round(perc* 100,1) , '%)'))%>%
         dplyr::select(-n, - perc)
 
 n_a1 <- temp2%>%
         dplyr::group_by(a1)%>%
         dplyr::tally()%>%
         dplyr::mutate(perc = n/sum(n))%>%
-        dplyr::mutate(New_a1 = paste0(a1, ' ', ' (', round(perc* 100,1) , '%)'))%>%
+        dplyr::mutate(New_a1 = paste0(a1, ' (', n , ', ', round(perc* 100,1) , '%)'))%>%
         dplyr::select(-n, - perc)
 n_r2 <- temp2%>%
         dplyr::group_by(r2)%>%
         dplyr::tally()%>%
         dplyr::mutate(perc = n/sum(n))%>%
-        dplyr::mutate(New_r2 = paste0(r2, ' ', ' (', round(perc* 100,1) , '%)'))%>%
+        dplyr::mutate(New_r2 = paste0(r2, ' (', n , ', ', round(perc* 100,1) , '%)'))%>%
         dplyr::select(-n, - perc)
 
 n_a2 <- temp2%>%
         dplyr::group_by(a2)%>%
         dplyr::tally()%>%
         dplyr::mutate(perc = n/sum(n))%>%
-        dplyr::mutate(New_a2 = paste0(a2, ' ', ' (', round(perc* 100,1) , '%)'))%>%
+        dplyr::mutate(New_a2 = paste0(a2, ' (', n , ', ', round(perc* 100,1) , '%)'))%>%
         dplyr::select(-n, - perc)
 
 n_r3 <- temp2%>%
         dplyr::group_by(r3)%>%
         dplyr::tally()%>%
         dplyr::mutate(perc = n/sum(n))%>%
-        dplyr::mutate(New_r3 = paste0(r3, ' ', ' (', round(perc* 100,1) , '%)'))%>%
+        dplyr::mutate(New_r3 = paste0(r3, ' (', n , ', ', round(perc* 100,1) , '%)'))%>%
         dplyr::select(-n, - perc)
 
 n_a3 <- temp2%>%
         dplyr::group_by(a3)%>%
         dplyr::tally()%>%
         dplyr::mutate(perc = n/sum(n))%>%
-        dplyr::mutate(New_a3 = paste0(a3, ' ', ' (', round(perc* 100,1) , '%)'))%>%
+        dplyr::mutate(New_a3 = paste0(a3, ' (', n , ', ', round(perc* 100,1) , '%)'))%>%
         dplyr::select(-n, - perc)
 
 temp <- merge(temp2, n_r1, by='r1', all.x = TRUE) 
